@@ -17,7 +17,7 @@ void choixPlacement(placement &place){
 
 
 void affichePlateau(plateau &grille, placement &place){
-  printf(" ");
+  printf("   ");
   for(int i = 0; i<C; i++){
     switch(place[i]){
       case 0: printf("    "); break;
@@ -28,7 +28,7 @@ void affichePlateau(plateau &grille, placement &place){
   printf("\n");
   for (int i = 0; i<C+2; i++){ //Boucle qui permet de créer les bordures supérieures des deux cadres
     if (i==0){
-      printf("\033[36;2m⌻\033[0m");
+      printf("\033[36;2m  ⌻\033[0m");
     }
     else if (i==C+1){
       printf("\b\033[36;2m⌻\033[0m\n");
@@ -38,7 +38,7 @@ void affichePlateau(plateau &grille, placement &place){
     }
   }
   for (int i = 0; i<L;i++){ //Boucle qui permet d'afficher le plateau principal à la zone correspondante au deuxième cadre (les 5 premières lignes)
-    printf("\033[36;2m⎟\033[0m");
+    printf("\033[36;2m%d ⎟\033[0m", i);
     for(int j =0; j<C; j++){
       switch(grille[i][j]){ //On prend la grille principale en référence et on affiche cette dernière
         case 0: printf("   \033[36;2m⎟\033[0m"); break;
@@ -50,7 +50,7 @@ void affichePlateau(plateau &grille, placement &place){
   }
   for (int i = 0; i<C+2; i++){ //Boucle qui permet d'afficher les bordures inférieures du cadre
     if (i==0){
-      printf("\033[36;2m⌻\033[0m");
+      printf("\033[36;2m  ⌻\033[0m");
     }
     else if (i==C+1){
       printf("\b\033[36;2m⌻\033[0m\n");
@@ -59,5 +59,18 @@ void affichePlateau(plateau &grille, placement &place){
       printf("\033[36;2m⎼⎼⎼⎼\033[0m");
     }
   }
+  printf("  ");
+  for (int i = 0; i<C; i++){
+    printf("\033[36;2m  %d \033[0m",i);
+  }
   printf("\n");
+}
+
+void tableauCopie(plateau &grille, plateau &grille2){
+	int i, j;
+  for(i = 0; i<L; i++){
+    for(j = 0; j<C; j++){
+      grille2[i][j] = grille[i][j]; //La seconde grille récupère les coordonnées de la première pour la copie
+    }
+  }
 }
