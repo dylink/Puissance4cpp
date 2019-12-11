@@ -29,6 +29,8 @@ void tableauCopie(plateau &grille, plateau &grille2);
 
 void jeu();
 
+int eval(plateau &grille, int joueur);
+
 int getScore(plateau &grille, int joueur);
 
 int nbCoups(plateau &grille);
@@ -39,9 +41,7 @@ void choixPlacement(placement &place);
 
 int finDeJeu(plateau &grille);
 
-int choix_colonne(plateau &grille, int profondeur, int joueur);
-
-int evaluationHeuristique(plateau &grille, int profondeur);
+int evaluationHeuristique(plateau &grille, int joueur, int profondeur);
 
 int enleverJeton(plateau &grille, int j);
 

@@ -17,13 +17,14 @@ void jeu(){
   int j = 0;
   system("clear");
   place[0] = joueur;
-  while(!finDeJeu(grille)){
+  while(!finDeJeu(grille)) {
     tableauCopie(grille, grille2);
     affichePlateau(grille, place);
-    printf("%d\n", getScore(grille, joueur));
+    //printf("%d\n", getScore(grille, joueur));
     printf("Au tour du joueur %d\n\n", joueur);
     printf("Veuillez choisir votre emplacement\n\n");
     printf("d = déplacer à droite\t q = déplacer à gauche\t v = confirmer\n");
+    //printf("%d\n", nbCoups(grille));
     if(joueur == 1){
 
     /* La partie qui suit vient d'un bout de code prit sur internet */
@@ -74,16 +75,10 @@ void jeu(){
       }
     }
     else {
-      //printf("%d\n", AIManager(grille2));
-      //printf("%d\n", negamax(grille2, 4));
-      //printf("%d && %d\n", myNegaMax(grille2, -1, 1, joueur, j), j);
-      //myNegaMax(grille2, -1, 1, joueur, j);
-      //printf("%d\n", negamax(grille2, 6, -INFINITY, INFINITY, joueur));
-      //printf("%d\n", bestMove(grille2));
       placerJeton(grille, bestMove(grille2), joueur);
       joueur = (joueur==1) ? 2 : 1;
       place[0] = joueur;
-      system("clear");
+      //system("clear");
     }
   }
   place[0] = 0;

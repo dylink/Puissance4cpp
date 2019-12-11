@@ -41,161 +41,202 @@ int finDeJeu(plateau &grille){
   for(int i = L-1; i>=0; i--){
     for(int j = 0;j<C;j++){
       if(grille[i][j]){
-        if( (grille[i-1][j] == grille[i][j] && grille[i-2][j] == grille[i][j] && grille[i-3][j] == grille[i][j]) ||
-        (grille[i-1][j+1] == grille[i][j] && grille[i-2][j+2] == grille[i][j] && grille[i-3][j+3] == grille[i][j] && j<C-3) ||
-        (grille[i-1][j-1] == grille[i][j] && grille[i-2][j-2] == grille[i][j] && grille[i-3][j-3] == grille[i][j] && j>2) ||
+        if( (grille[i-1][j] == grille[i][j] && grille[i-2][j] == grille[i][j] && grille[i-3][j] == grille[i][j] && i>2) ||
+        (grille[i-1][j+1] == grille[i][j] && grille[i-2][j+2] == grille[i][j] && grille[i-3][j+3] == grille[i][j] && j<C-3 && i>2) ||
+        (grille[i-1][j-1] == grille[i][j] && grille[i-2][j-2] == grille[i][j] && grille[i-3][j-3] == grille[i][j] && j>2 && i>2) ||
         (grille[i][j+1] == grille[i][j] && grille[i][j+2] == grille[i][j] && grille[i][j+3] == grille[i][j] && j<C-3) ) {
-          //printf("Le joueur %d a gagné!\n", grille[i][j]);
           return grille[i][j];
         }
       }
     }
   }
+  if(nbCoups(grille) == C*L){
+    return 3;
+  }
   return 0;
 }
 
-int getScore(plateau &grille, int joueur){
-  placement rien;
-  int mes_deux = 0, mes_trois = 0, mes_quatre = 0;
-  for(int i = L-1; i>=0; i--){
-    for(int j = C-1; j>=0; j--){
-      if(grille[i][j] == joueur){
-        if(grille[i-1][j] == joueur && grille[i+1][j] != joueur && i>0){
-          if(grille[i-2][j] == joueur){
-            if(grille[i-3][j] == joueur){
-              mes_quatre++;
-            }
-            else if(!grille[i-3][j]){
-              mes_trois++;
-            }
-          }
-          else if(!grille[i-2][j]){
-            //printf("Oui %d && (%d, %d) avec (%d, %d)\n", grille[i][j], i, j, i-1, j);
-            mes_deux++;
-          }
-        }
-        if(grille[i][j-1] == joueur && grille[i][j+1] != joueur && j>0){
-          if(grille[i][j-2] == joueur){
-            if(grille[i][j-3] == joueur){
-              mes_quatre++;
-            }
-            else if(!grille[i][j-3]){
-              mes_trois++;
-            }
-          }
-          else if(!grille[i][j-2]){
-            //printf("Oui %d && (%d, %d) avec (%d, %d)\n", grille[i][j], i, j, i, j-1);
-            mes_deux++;
-          }
-        }
-        if(grille[i-1][j-1] == joueur && grille[i+1][j+1] != joueur && j>0 && i>0){
-          if(grille[i-2][j-2] == joueur){
-            if(grille[i-3][j-3] == joueur){
-              mes_quatre++;
-            }
-            else if(!grille[i-3][j-3]){
-              mes_trois++;
-            }
-          }
-          else if(!grille[i-2][j-2]){
-            //printf("Oui %d && (%d, %d) avec (%d, %d)\n", grille[i][j], i, j, i-1, j-1);
-            mes_deux++;
-          }
-        }
-        if(grille[i-1][j+1] == joueur && grille[i+1][j-1] != joueur && j<C-1 && i>0){
-          if(grille[i-2][j+2] == joueur){
-            if(grille[i-3][j+3] == joueur){
-              mes_quatre++;
-            }
-            else if(!grille[i-3][j+3]){
-              mes_trois++;
-            }
-          }
-          else if(!grille[i-2][j+2]){
-            //printf("Oui %d && (%d, %d) avec (%d, %d)\n", grille[i][j], i, j, i-1, j+1);
-            mes_deux++;
-          }
-        }
+
+int checkDiagD(plateau &grille ,int joueur){
+  int joueur2 = (joueur == 1) ? 2 : 1;
+  int score = 0, nbJetons = 0, nbJetonsVS = 0, x = 0, y = 0;
+  for(int i = 0; i<L/2; i++){
+    for(int j = C/2; j<C; j++){
+      if(grille[i][j] == joueur)  nbJetons++;
+      else if(grille[i][j] == joueur2)  nbJetonsVS++;
+      if(grille[i+1][j-1] == joueur)  nbJetons++;
+      else if(grille[i+1][j-1] == joueur2)  nbJetonsVS++;
+      if(grille[i+2][j-2] == joueur)  nbJetons++;
+      else if(grille[i+2][j-2] == joueur2)  nbJetonsVS++;
+      if(grille[i+3][j-3] == joueur)  nbJetons++;
+      else if(grille[i+3][j-3] == joueur2)  nbJetonsVS++;
+      if(!nbJetons && !nbJetonsVS)  score = 1;
+      switch(nbJetons){
+        case 1 : score += 2; break;
+        case 2 : score += 6; break;
+        case 3 : score += 1000; break;
       }
-      else if(!grille[i][j]){
-        if(grille[i][j-1] == joueur && j>0){
-          if(grille[i][j-2] == joueur){
-            //printf("Oui %d && (%d, %d) avec (%d, %d)\n", grille[i][j], i, j, i, j-1);
-            if(grille[i][j-3] == joueur){
-              mes_trois++;
-            }
-            else if(grille[i][j-3] != joueur){
-              //printf("Oui %d && (%d, %d) avec (%d, %d)\n", grille[i][j], i, j, i, j-1);
-              mes_deux++;
-            }
-          }
-        }
+      switch(nbJetonsVS){
+        case 1 : score += -4; break;
+        case 2 : score += -8; break;
+        case 3 : score += -500; break;
       }
+      nbJetons = 0, nbJetonsVS = 0;
     }
   }
-  /*affichePlateau(grille, rien);
-  printf("Joueur == %d, score == %d\n", joueur, mes_deux*5+mes_trois*20+mes_quatre*100);
-  return mes_deux;*/
-  //printf("")
-  return mes_deux*5+mes_trois*20+mes_quatre*100;
+  return score;
 }
 
-int evaluation(plateau &grille, int joueur){
-  placement rien;
+int checkDiagG(plateau &grille ,int joueur){
   int joueur2 = (joueur == 1) ? 2 : 1;
-  //affichePlateau(grille, rien);
-  return (getScore(grille, joueur) - getScore(grille, joueur2)) / nbCoups(grille);
+  int score = 0, nbJetons = 0, nbJetonsVS = 0, x = 0, y = 0;
+  for(int i = 0; i<L/2; i++){
+    for(int j = 0; j<=C/2; j++){
+      if(grille[i][j] == joueur)  nbJetons++;
+      else if(grille[i][j] == joueur2)  nbJetonsVS++;
+      if(grille[i+1][j+1] == joueur)  nbJetons++;
+      else if(grille[i+1][j+1] == joueur2)  nbJetonsVS++;
+      if(grille[i+2][j+2] == joueur)  nbJetons++;
+      else if(grille[i+2][j+2] == joueur2)  nbJetonsVS++;
+      if(grille[i+3][j+3] == joueur)  nbJetons++;
+      else if(grille[i+3][j+3] == joueur2)  nbJetonsVS++;
+
+      if(!nbJetons && !nbJetonsVS)  score = 1;
+      switch(nbJetons){
+        case 1 : score += 2; break;
+        case 2 : score += 6; break;
+        case 3 : score += 1000; break;
+      }
+      switch(nbJetonsVS){
+        case 1 : score += -4; break;
+        case 2 : score += -8; break;
+        case 3 : score += -500; break;
+      }
+      nbJetons = 0, nbJetonsVS = 0;
+    }
+  }
+  return score;
+}
+
+int checkHori(plateau &grille ,int joueur){
+  int joueur2 = (joueur == 1) ? 2 : 1;
+  int score = 0, nbJetons = 0, nbJetonsVS = 0, x = 0, y = 0;
+  for(int i = 0; i<L; i++){
+    for(int j = 0; j<=C/2; j++){
+      if(grille[i][j] == joueur)    nbJetons++;
+      else if(grille[i][j] == joueur2)    nbJetonsVS++;
+      if(grille[i][j+1] == joueur)    nbJetons++;
+      else if(grille[i][j+1] == joueur2)    nbJetonsVS++;
+      if(grille[i][j+2] == joueur)    nbJetons++;
+      else if(grille[i][j+2] == joueur2)    nbJetonsVS++;
+      if(grille[i][j+3] == joueur)    nbJetons++;
+      else if(grille[i][j+3] == joueur2)    nbJetonsVS++;
+      if(!nbJetons && !nbJetonsVS)  score = 1;
+      switch(nbJetons){
+        case 1 : score += 2; break;
+        case 2 : score += 6;  break;
+        case 3 : score += 1000; break;
+      }
+      switch(nbJetonsVS){
+        case 1 : score += -4; break;
+        case 2 : score += -8; break;
+        case 3 : score += -500; break;
+      }
+      //printf("%d && %d && %d\n", joueur, nbJetonsVS, j);
+      nbJetons = 0, nbJetonsVS = 0;
+    }
+  }
+  return score;
+}
+
+int checkVert(plateau &grille ,int joueur){
+  int joueur2 = (joueur == 1) ? 2 : 1;
+  int score = 0, nbJetons = 0, nbJetonsVS = 0, x = 0, y = 0;
+  for(int i = 0; i<L/2; i++){
+    for(int j = 0; j<C; j++){
+      if(grille[i][j] == joueur)  nbJetons++;
+      else if(grille[i][j] == joueur2)  nbJetonsVS++;
+      if(grille[i+1][j] == joueur)  nbJetons++;
+      else if(grille[i+1][j] == joueur2)  nbJetonsVS++;
+      if(grille[i+2][j] == joueur)  nbJetons++;
+      else if(grille[i+2][j] == joueur2)  nbJetonsVS++;
+      if(grille[i+3][j] == joueur)  nbJetons++;
+      else if(grille[i+3][j] == joueur2)  nbJetonsVS++;
+      if(!nbJetons && !nbJetonsVS)  score = 1;
+      if(!nbJetons && !nbJetonsVS)  score = 1;
+      switch(nbJetons){
+        case 1 : score += 2; break;
+        case 2 : score += 6; break;
+        case 3 : score += 1000; break;
+      }
+      switch(nbJetonsVS){
+        case 1 : score += -4; break;
+        case 2 : score += -8; break;
+        case 3 : score += -500; break;
+      }
+      nbJetons = 0, nbJetonsVS = 0;
+    }
+  }
+  return score;
+}
+
+int eval(plateau &grille, int joueur){
+  int joueur2 = (joueur == 1) ? 2 : 1;
+  if(finDeJeu(grille) == joueur){
+    return 100000;
+  }
+  else if(finDeJeu(grille) == joueur2){
+    return -100000;
+  }
+  return checkDiagG(grille, joueur) + checkDiagD(grille, joueur) + checkHori(grille, joueur) + checkVert(grille, joueur);
 }
 
 int bestMove(plateau &grille){
+  placement rien;
   int best = 0;
   int max = -INFINITY;
   int noeuds = 0;
+  //printf("    ");
+  for(int i = 0; i<C; i++){
+    if(placerJeton(grille, i, 2)){
+      if(finDeJeu(grille) == 2){
+        enleverJeton(grille, i);
+        return i;
+      }
+      enleverJeton(grille, i);
+    }
+  }
   for(int i = 0; i<C; i++){
     if(placerJeton(grille, i, 1)){
-      int score = -negamax(grille, 6, -INFINITY, INFINITY, 2, noeuds);
-      if(finDeJeu(grille)){
-        score = INFINITY;
+      if(finDeJeu(grille) == 1){
+        printf("Joueur 1 gagne %d\n", i);
+        affichePlateau(grille, rien);
+        printf("%d\n", finDeJeu(grille));
+        enleverJeton(grille, i);
+        return i;
       }
-      //printf("%d\n", score);
+      int score = -negamax(grille, 6, -INFINITY, INFINITY, 2, noeuds);
       enleverJeton(grille, i);
-      if(max <= score){
+      if(max < score){
         max = score;
         best = i;
       }
+      printf("max %d && score %d\n", max, score);
     }
   }
-  printf("%d noeuds parcourus\n", noeuds);
-  //printf("%d\n", best);
+  printf("\n%d noeuds parcourus\n", noeuds);
   return best;
 }
 
 int negamax(plateau &grille, int profondeur, int alpha, int beta, int joueur, int& noeuds){
   placement rien;
   noeuds++;
-  //affichePlateau(grille, rien);
-  static int prof = profondeur;
   int joueur2 = (joueur == 1) ? 2 : 1;
   if (profondeur == 0 || finDeJeu(grille)){
-    return evaluation(grille, joueur);
+    return eval(grille, joueur);
   }
-  //int max = -INFINITY;
-  /*if(prof == profondeur){
-    for(int i = 0; i<C; i++){
-      if(placerJeton(grille, i, joueur)){
-        if(finDeJeu(grille) == joueur){
-          return evaluation(grille, joueur);
-        }
-        enleverJeton(grille, i);
-      }
-    }
-  }*/
   for(int i = 0; i<C; i++) {
     if(placerJeton(grille, i, joueur)){
-      /*if(finDeJeu(grille)){
-        affichePlateau(grille, rien);
-        return INFINITY;
-      }*/
       int score = -negamax(grille, profondeur - 1, -beta, -alpha, joueur2, noeuds);
       enleverJeton(grille, i);
       if (score >= alpha){
