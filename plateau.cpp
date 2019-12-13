@@ -9,6 +9,7 @@ void initPlateau(plateau grille){
   }
 }
 
+
 void choixPlacement(placement place){
   for(int i = 0; i<C; i++){
     place[i] = 0;
@@ -44,6 +45,7 @@ void affichePlateau(plateau grille, placement place){
         case 0: printf("   \033[36;2m⎟\033[0m"); break;
         case 1: printf(" \033[31;2m◉\033[0m \033[36;2m⎟\033[0m"); break;
         case 2: printf(" \033[33;2m◉\033[0m \033[36;2m⎟\033[0m"); break;
+        case 4: printf(" \033[37;5m◉\033[0m \033[36;2m⎟\033[0m"); break;
       }
     }
     printf("\n");
@@ -60,9 +62,6 @@ void affichePlateau(plateau grille, placement place){
     }
   }
   printf("  ");
-  /*for (int i = 0; i<C; i++){
-    printf("\033[36;2m  %d \033[0m",i);
-  }*/
   printf("\n");
 }
 

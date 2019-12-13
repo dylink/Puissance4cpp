@@ -57,6 +57,10 @@ int finDeJeu(plateau grille){
   return 0;
 }
 
+/*      Les quatre fonctions qui suivent servent à parcourir la grille et à compter les alignements de jetons */
+
+
+/* Traitement des diagonales droites de chaque case vers le bas */
 
 int checkDiagD(plateau grille ,int joueur){
   int joueur2 = (joueur == 1) ? 2 : 1;
@@ -86,6 +90,8 @@ int checkDiagD(plateau grille ,int joueur){
   }
   return score;
 }
+
+/* Traitement des diagonales gauches de chaque case vers le bas */
 
 int checkDiagG(plateau grille ,int joueur){
   int joueur2 = (joueur == 1) ? 2 : 1;
@@ -117,6 +123,8 @@ int checkDiagG(plateau grille ,int joueur){
   return score;
 }
 
+/* Traitement des cases à droite de chaque case*/
+
 int checkHori(plateau grille ,int joueur){
   int joueur2 = (joueur == 1) ? 2 : 1;
   int score = 0, nbJetons = 0, nbJetonsVS = 0;
@@ -145,6 +153,8 @@ int checkHori(plateau grille ,int joueur){
   }
   return score;
 }
+
+/* Traitement des cases en dessous de chaque case */
 
 int checkVert(plateau grille ,int joueur){
   int joueur2 = (joueur == 1) ? 2 : 1;
@@ -175,6 +185,8 @@ int checkVert(plateau grille ,int joueur){
   return score;
 }
 
+
+
 int eval(plateau grille, int joueur){
   int joueur2 = (joueur == 1) ? 2 : 1;
   if(finDeJeu(grille) == joueur){
@@ -186,7 +198,8 @@ int eval(plateau grille, int joueur){
   return checkDiagG(grille, joueur) + checkDiagD(grille, joueur) + checkHori(grille, joueur) + checkVert(grille, joueur);
 }
 
-int negamax(plateau grille, int profondeur, int alpha, int beta, int joueur, int& noeuds, std::mutex &myMutex){
+
+int negamax(plateau grille, int profondeur, int alpha, int beta, int joueur, int& noeuds){
   noeuds++;
   int joueur2 = (joueur == 1) ? 2 : 1;
   if (profondeur == 0 || finDeJeu(grille)){
@@ -194,7 +207,7 @@ int negamax(plateau grille, int profondeur, int alpha, int beta, int joueur, int
   }
   for(int i = 0; i<C; i++) {
     if(placerJeton(grille, i, joueur)){
-      int score = -negamax(grille, profondeur - 1, -beta, -alpha, joueur2, noeuds, myMutex);
+      int score = -negamax(grille, profondeur - 1, -beta, -alpha, joueur2, noeuds);
       enleverJeton(grille, i);
       if (score >= alpha){
         alpha = score ;
@@ -205,73 +218,71 @@ int negamax(plateau grille, int profondeur, int alpha, int beta, int joueur, int
   return alpha;
 }
 
-int bestMove(plateau grille, int profondeur, int debut, int fin, vector<pair<int, int>> &result, std::mutex &myMutex){
-  placement rien;
+
+int bestMove(plateau grille, int profondeur, int debut, int fin, vector<pair<int, int>> &result, int index){
+  plateau grille2;
+  tableauCopie(grille, grille2);
   pair<int, int> a;
   int best = 0;
   int max = -99999999;
   int noeuds = 0;
   for(int i = debut; i<fin; i++){
-    myMutex.lock();
-    if(placerJeton(grille, i, 2)){
-      affichePlateau(grille, rien);
-      if(finDeJeu(grille) == 2){
-        enleverJeton(grille, i);
+    if(placerJeton(grille2, i, 1)){
+      if(finDeJeu(grille2) == 1){
+        enleverJeton(grille2, i);
+        printf("Joueur 1 gagne %d\n", i);
+        max = 99999999;
         a.first = max;
         a.second = i;
-        max = 99999999;
-        result.push_back(a);
-        myMutex.unlock();
+        result[index].first = max;
+        result[index].second = i;
         return i;
       }
-      enleverJeton(grille, i);
+      enleverJeton(grille2, i);
     }
-    myMutex.unlock();
   }
   for(int i = debut; i<fin; i++){
-    myMutex.lock();
-    if(placerJeton(grille, i, 1)){
-      if(finDeJeu(grille) == 1){
-        enleverJeton(grille, i);
+    if(placerJeton(grille2, i, 2)){
+      if(finDeJeu(grille2) == 2){
+        enleverJeton(grille2, i);
         max = 99999999;
         a.first = max;
         a.second = i;
-        result.push_back(a);
-        myMutex.unlock();
+        result[index].first = max;
+        result[index].second = i;
         return i;
       }
-      int score = -negamax(grille, profondeur, -99999999, 99999999, 2, noeuds, myMutex);
+      int score = -negamax(grille2, profondeur, -99999999, 99999999, 1, noeuds);
       if(max < score){
         max = score;
         best = i;
       }
-      myMutex.unlock();
+      enleverJeton(grille2, i);
     }
-    enleverJeton(grille, i);
   }
-  myMutex.lock();
   a.first = max;
   a.second = best;
-  result.push_back(a);
-  myMutex.unlock();
+  result[index].first = max;
+  result[index].second = best;
   return best;
 }
+
 
 int threads(plateau grille, int n, int profondeur){
   std::mutex myMutex;
   int max = -99999999;
   int best = 0;
-  vector<pair<int, int>> results;
-  vector<thread> vect;                                                       //Déclaration d'un vecteur de threads
+  vector<pair<int, int>> results (n, make_pair(0,0));
+  vector<thread> vect;
   for(int i = 0; i<n; i++){
-    float debut = (float(i)*(float(C)/float(n)));                                         //Déclaration du début de l'intervalle
-    float fin = debut + float(C)/float(n);                                        //Déclaration du seuil de l'intervalle
+    float debut = (float(i)*(float(C)/float(n)));
+    float fin = debut + float(C)/float(n);
     int d = ceil(debut);
     int f = ceil(fin);
-    vect.push_back(thread(bestMove, grille, profondeur, d, f, ref(results), ref(myMutex)));            //Insertion des threads dans le vecteur
+    vect.push_back(thread(bestMove, grille, profondeur, d, f, ref(results), i));
   }
   for(thread &t : vect){
-    t.join();                                                                //Fermeture des threads
+    t.join();
   }
   for(auto f : results){
     if(max < f.first){
