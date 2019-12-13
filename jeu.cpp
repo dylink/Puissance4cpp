@@ -7,7 +7,9 @@ static void old_attr(void){
 }
 
 
-void jeu(){
+void jeu(int nbThreads, int profondeur){
+  std::mutex myMutex;
+  std::vector<std::pair<int, int>> ta;
   plateau grille;
   plateau grille2;
   placement place;
@@ -20,11 +22,9 @@ void jeu(){
   while(!finDeJeu(grille)) {
     tableauCopie(grille, grille2);
     affichePlateau(grille, place);
-    //printf("%d\n", getScore(grille, joueur));
     printf("Au tour du joueur %d\n\n", joueur);
     printf("Veuillez choisir votre emplacement\n\n");
     printf("d = déplacer à droite\t q = déplacer à gauche\t v = confirmer\n");
-    //printf("%d\n", nbCoups(grille));
     if(joueur == 1){
 
     /* La partie qui suit vient d'un bout de code prit sur internet */
@@ -64,8 +64,9 @@ void jeu(){
           if(placerJeton(grille, j, joueur)){
             place[j] = 0; j = 0;
             joueur = (joueur==1) ? 2 : 1;
-            place[j] = joueur;
+            //place[j] = joueur;
             system("clear");
+            printf("L'IA réfléchit...");
 
           }
           else{
@@ -75,12 +76,14 @@ void jeu(){
       }
     }
     else {
-      placerJeton(grille, bestMove(grille2), joueur);
+      placerJeton(grille, threads(grille2, nbThreads, profondeur), joueur);
       joueur = (joueur==1) ? 2 : 1;
       place[0] = joueur;
       //system("clear");
     }
   }
   place[0] = 0;
+  system("clear");
   affichePlateau(grille, place);
+  printf("Le joueur %d a gagné!\n", finDeJeu(grille));
 }

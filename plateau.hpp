@@ -4,15 +4,19 @@
 #include <string.h>
 #include <sys/time.h>
 #include <termios.h>
-#include <cmath>
 #include <unistd.h>
+#include <vector>
+#include <utility>
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <math.h>
+
 
 ///Nombre de lignes
 #define L 6
 ///Nombre de colonnes
 #define C 7
-
-#define INFINI 2
 
 ///Création d'un type "plateau" de taille C*L
 typedef int plateau[L][C];
@@ -21,30 +25,28 @@ typedef int placement[C];
 /*																			Fonctions de plateau																		*/
 
 ///Initialise le plateau
-void initPlateau(plateau &grille);
+void initPlateau(plateau grille);
 ///Affiche le plateau
-void affichePlateau(plateau &grille, placement &place);
+void affichePlateau(plateau grille, placement place);
 
-void tableauCopie(plateau &grille, plateau &grille2);
+void tableauCopie(plateau grille, plateau grille2);
 
-void jeu();
+void jeu(int nbThreads, int profondeur);
 
-int eval(plateau &grille, int joueur);
+int eval(plateau grille, int joueur);
 
-int getScore(plateau &grille, int joueur);
+int nbCoups(plateau grille);
 
-int nbCoups(plateau &grille);
+int placerJeton(plateau grille, int, int);
 
-int placerJeton(plateau &grille, int, int);
+void choixPlacement(placement place);
 
-void choixPlacement(placement &place);
+int finDeJeu(plateau grille);
 
-int finDeJeu(plateau &grille);
+int enleverJeton(plateau grille, int j);
 
-int evaluationHeuristique(plateau &grille, int joueur, int profondeur);
+int negamax(plateau grille, int profondeur, int alpha, int beta, int joueur, int &noeuds, std::mutex &myMutex);
 
-int enleverJeton(plateau &grille, int j);
+int bestMove(plateau grille, int profondeur, int debut, int fin, std::vector<std::pair<int,int>> &result, std::mutex &myMutex);
 
-int negamax(plateau &grille, int profondeur, int alpha, int beta, int joueur, int &noeuds);
-
-int bestMove(plateau &grille);
+int threads(plateau grille, int n, int profondeur);
